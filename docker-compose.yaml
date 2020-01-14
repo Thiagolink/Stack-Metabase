@@ -1,6 +1,5 @@
 version: "3"
 
-# All available services
 services:
 
   postgres-datawarehouse:
@@ -10,9 +9,9 @@ services:
     environment:
       - 'POSTGRES_PASSWORD=admin'
     volumes:
-      - C:/Users/tt200/docker/volumes/postgres-datawarehouse:/var/lib/postgresql/data/
+      - /home/tre-rn/docker/postgres-datawarehouse:/var/lib/postgresql/data/
     ports:
-      - 5432:5432
+      - 5434:5432
 
   pgadmin4:
     container_name: "pgadmin4"
@@ -24,29 +23,25 @@ services:
     ports:
       - 5050:80
 
-      
-  postgres:
+  postgres-metabase:
     container_name: "postgres-metabase"
     restart: "no"
     image: postgres
-    environment:
-      - 'POSTGRES_PASSWORD=admin'
-      - 'METABASE_PASSOWRD=metabase'
+    env_file:
+      - ./config/postgres.env
     volumes:
-      - C:/Users/tt200/docker/volumes/postgres-metabase:/var/lib/postgresql/data/
-      - C:/Users/tt200/Desktop/Git/Stack-Metabase/services/postgres/:/docker-entrypoint-initdb.d/
+      - /home/tre-rn/docker/volumes/postgres-metabase:/var/lib/postgresql/data/
+      - ./services/postgres/:/docker-entrypoint-initdb.d/
     ports:
-      - 54320:5432
+      - 5432:5432
 
   metabase:
     container_name: "metabase"
     restart: "always"
     image: metabase/metabase
+    links:
+      - "postgres-metabase:database"
     env_file:
-      - C:/Users/tt200/Desktop/Git/Stack-Metabase/config/metabase_database.env
+      - ./config/metabase_database.env
     ports:
       - 3000:3000
-
-# Volumes to persist data
-volumes:
-  postgres_volume:
